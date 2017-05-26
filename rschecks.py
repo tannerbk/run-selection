@@ -74,7 +74,7 @@ def main():
 	
 	# Some cosmetics taken from E. Falk
 	p = 0
-        if ((run % 10 == 0) and (i != 0)):
+        if ((run % 10 == 0) and (p != 0)):
 	   runlist.write("-------|----------|----------|" + \
                   	 "-----------|-----------|" + \
                          "------------------|----"
@@ -236,6 +236,9 @@ def main():
 
         # Perform the HL checks
         dqhltools.dqhlPassFailList(run,runlist)
+
+	# Increment p
+	p += 1
 
     runlist.close()	
 
