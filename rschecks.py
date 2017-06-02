@@ -212,7 +212,7 @@ def main():
                   cratedac = 0
 
 	   # OWLs DAC value is 0 (power supply B)
-           crate_16B_dac = dqlldata['crate_16_hv_status_b']
+           crate_16B_dac = dqlldata['crate_16_hv_dac_b']
 
 	   if crate_16B_dac == 0:
 
