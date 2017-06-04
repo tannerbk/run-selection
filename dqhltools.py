@@ -35,9 +35,10 @@ def processRun(runNumber, data, runlistFile):
 
     # Print run results list:
     runlistFile.write(" %i%i%i%i   | %i%i%i%i   |" % \
-           (modifTriggerProcChecksOK(triggerProc), \
-           modifTimeProcChecksOK(timeProc), \
-           modifRunProcChecksOK(runProc), pmtProcChecksOK(pmtProc), \
+           (modifTriggerProcChecksOK(runNumber, triggerProc), \
+           modifTimeProcChecksOK(runNumber, timeProc), \
+           modifRunProcChecksOK(runNumber, runProc), \
+           pmtProcChecksOK(pmtProc), \
            triggerProcChecksOK(triggerProc), timeProcChecksOK(timeProc), \
            runProcChecksOK(runProc), pmtProcChecksOK(pmtProc)) + \
                       " %i     %i     %i    %i      |" % \
@@ -48,12 +49,12 @@ def processRun(runNumber, data, runlistFile):
                       " %i     %i      %i     %i     " % \
            (timeProc['event_rate'], timeProc['event_separation'], \
            timeProc['retriggers'], timeProc['run_header']) + \
-                      " %i       %i     %i      |" % \
-           (timeProc['10Mhz_UT_comparrison'], timeProc['clock_forward'], \
-           timeProc['delta_t_comparison']) + \
-                      " %i       %i     %i      %i    | %i      %i     %i\n" % \
+                      " %i       %i     |" % \
+           (timeProc['10Mhz_UT_comparrison'], 
+           timeProc['clock_forward']) + \
+                      " %i       %i     %i    | %i      %i     %i\n" % \
            (runProc['run_type'], runProc['mc_flag'], \
-           runProc['run_length'], runProc['trigger'], \
+           runProc['trigger'], \
            pmtProc['general_coverage'], pmtProc['crate_coverage'], \
            pmtProc['panel_coverage']))
 
@@ -79,10 +80,10 @@ def dqhlPassFailList(currentrun,runlistFile):
                         (9, 9, 9, 9) + \
                         " %i     %i      %i     %i     " % \
                         (9, 9, 9, 9) + \
-                        " %i       %i     %i      |" % \
-                        (9, 9, 9) + \
-                        " %i       %i     %i      %i    | %i      %i     %i\n" % \
-                        (9, 9, 9, 9, 9, 9, 9))
+                        " %i       %i     |" % \
+                        (9, 9) + \
+                        " %i       %i     %i    | %i      %i     %i\n" % \
+                        (9, 9, 9, 9, 9, 9))
 		
        sys.stderr.write("%s - dqhltools():ERROR: DQHL results not present\n"
                              % (datetime.datetime.now().replace(microsecond = 0))) 
