@@ -11,7 +11,8 @@
 # 
 #==================================================================
 
-kAmendedMaxEventRate = 1200
+# kAmendedMaxEventRate = 1200
+kAmendedMaxEventRate = 7000  # Agreed at RS/DQ phone mtg 19/06/2017
 kAmendedMaxBitFlipCount = 0
 
 def isPhysicsRun(data):
@@ -100,10 +101,10 @@ def modifEventRateCheckOK(timeProc):
     eventRateCheck = timeProc['event_rate']
     if (eventRateCheck == 0):
         minEventRate = timeProc['criteria']['min_event_rate']
-        # meanEventRate = timeProc['check_params']['mean_event_rate']
-        deltaTEventRate = timeProc['check_params']['delta_t_event_rate']
-        if ((deltaTEventRate <= kAmendedMaxEventRate) and
-            (deltaTEventRate >= minEventRate)):
+        meanEventRate = timeProc['check_params']['mean_event_rate']
+        # deltaTEventRate = timeProc['check_params']['delta_t_event_rate']
+        if ((meanEventRate <= kAmendedMaxEventRate) and
+            (meanEventRate >= minEventRate)):
             eventRateCheck = 1
     return eventRateCheck
 
