@@ -57,6 +57,16 @@ def main():
     SLASSAY_MASK = 0x4000000 # bit 26
     UNUSUAL_ACTIVITY_MASK = 0x8000000 # bit 2
 
+    # Variables for statistics calculation
+    nruns = 0
+    nnotphys = 0
+    ntypeok = 0
+    ndurationok = 0
+    ncratehvok = 0
+    nnohvalarm = 0
+
+    nphysruns = 0
+
     # Create run list
     runlistname = "runlist_{0}-{1}.txt".format(args.firstrun,args.lastrun)
 
@@ -65,6 +75,9 @@ def main():
     # Write run list header
     rstools.write_header(runlist)
 
+    # Counter for some cosmetics below
+    p = 0
+
     # Loop over runs from <firstrun> to <lastrun>  
     for run in range(args.firstrun,args.lastrun + 1):	
 
@@ -72,20 +85,18 @@ def main():
      		             % (datetime.datetime.now().replace(microsecond = 0),run))
 
 	
+        nruns += 1
+
 	# Some cosmetics taken from E. Falk
-	p = 0
         if ((run % 10 == 0) and (p != 0)):
-	   runlist.write("-------|----------|----------|" + \
-                  	 "-----------|-----------|" + \
-                         "------------------|----"
-                         "---------------------|" + \
-                         "-----------------------------------------|" + \
-                         "--------------------|---------------------\n")
+
+            runlist.write("-------||-------|------|" + \
+                          "------|-------|" + \
+                          "-------|--------||----"
+                          "-----|--------|" + \
+                          "-------------------------|-----------------------------------------|--------------------|" + \
+                          "--------------------\n")
 						
-        # Read detector state database & alarms
-	# TO DO
-
-
 	runtype = 1
 	
 	# Read RUN.ratdb
@@ -105,6 +116,8 @@ def main():
 	      sys.stdout.write("%s - rscheck():INFO: run %i is not a PHYSICS run\n"
               		           % (datetime.datetime.now().replace(microsecond = 0),run))
      
+              nnotphys += 1
+
               continue
 
            # DCR Activity bit set
@@ -151,12 +164,21 @@ def main():
 
            runtype = 9
 
+        if runtype == 1: ntypeok += 1
 
 	runduration = 1
 
 	cratestatus = 1
 
 	cratedac = 1
+
+        crateovercurrent = 1
+
+        cratecurrentnearzero = 1
+
+        cratesetpointdiscrepancy = 1
+
+        cratealarmok = 1
 	
         # Read DQLL.ratdb
 	dqlldatatuple = ratdbtools.get_table(run, "DQLL", settings.RATDB_ADDRESS, settings.RATDB_HOST,
@@ -169,6 +191,8 @@ def main():
 
            duration = dqlldata['duration_seconds']
 
+           version = dqlldata['version']
+
            # Duration < 30 minutes
            if duration < 1800:
            
@@ -176,6 +200,8 @@ def main():
                                    % (datetime.datetime.now().replace(microsecond = 0),run))
 
               runduration = 0
+
+           if runtype == 1 and runduration == 1: ndurationok += 1
 
 	   crates_status_a = dqlldata['crate_hv_status_a']
 
@@ -206,7 +232,7 @@ def main():
 
 	       if crates_dac_a[i] == 0:
 
-	          sys.stdout.write("%s - rscheck():INFO: run %i crate %i DAC value is 0\n"
+	          sys.stdout.write("%s - rscheck():INFO: run %i crate %i power supply A DAC value is 0\n"
                                        % (datetime.datetime.now().replace(microsecond = 0),run,i))
 
                   cratedac = 0
@@ -216,23 +242,112 @@ def main():
 
 	   if crate_16B_dac == 0:
 
-              sys.stdout.write("%s - rscheck():INFO: run %i crate %i DAC value is 0\n"
-	                           % (datetime.datetime.now().replace(microsecond = 0),run,i))
+              sys.stdout.write("%s - rscheck():INFO: run %i crate 16 power supply B DAC value is 0\n"
+	                           % (datetime.datetime.now().replace(microsecond = 0),run))
            
               cratedac = 0
         
+           # HV alarms only exist for version 4 and later
+           if version > 3:
+
+               # Crate HV alarms
+               detectordbalarms = dqlldata['detector_db_alarms']
+
+               # At least one crate has a current near zero alarm (power supply A)
+               hvcurrentnearzero_a = detectordbalarms['HV_current_near_zero_A']
+
+               for i in range(len(hvcurrentnearzero_a)):
+
+                   if hvcurrentnearzero_a[i] == 1:
+
+                       sys.stdout.write("%s - rscheck():INFO: run %i crate %i has a current near zero alarm\n"
+                                        % (datetime.datetime.now().replace(microsecond = 0),run,i))
+
+                       cratecurrentnearzero = 0
+
+               # OWLs crate with current near zero (power supply B)
+               hvcurrentnearzero_16b = detectordbalarms['HV_current_near_zero_B']
+
+               if hvcurrentnearzero_16b == 1: 
+               
+                   sys.stdout.write("%s - rscheck():INFO: run %i crate 16 power supply B has a current near zero alarm\n"
+                                    % (datetime.datetime.now().replace(microsecond = 0),run))
+                   
+                   cratecurrentnearzero = 0
+
+               # At least one crate has an over-current alarm (power supply A)
+               hvovercurrent_a = detectordbalarms['HV_over_current_A']
+
+               for i in range(len(hvovercurrent_a)):
+
+                   if hvovercurrent_a[i] == 1:
+
+                       sys.stdout.write("%s - rscheck():INFO: run %i crate %i has an over current alarm\n"
+                                        % (datetime.datetime.now().replace(microsecond = 0),run,i))
+                       
+                        
+                       crateovercurrent = 0
+
+               # OWLs crate with an over current alarm (power supply B)
+               hvovercurrent_16b = detectordbalarms['HV_over_current_B']
+
+               if hvovercurrent_16b == 1:
+
+                   sys.stdout.write("%s - rscheck():INFO: run %i crate 16 power supply B has an over current alarm\n"
+                                    % (datetime.datetime.now().replace(microsecond = 0),run))
+
+                   crateovercurrent = 0
+
+               # At least one crate with has a HV setpoint discrepancy alarm (power supply A)
+               hvsetpointdiscrepancy_a = detectordbalarms['HV_setpoint_discrepancy_A']
+
+               for i in range(len(hvsetpointdiscrepancy_a)):
+
+                   if hvsetpointdiscrepancy_a[i] == 1:
+                        
+                       sys.stdout.write("%s - rscheck():INFO: run %i crate %i has a setpoint discrepancy alarm\n"
+                                        % (datetime.datetime.now().replace(microsecond = 0),run,i))
+                        
+                       cratesetpointdiscrepancy = 0
+                        
+               # OWls crate with a setpoint discrepancy alarm (power supply B)
+               hvsetpointdiscrepancy_16b = detectordbalarms['HV_setpoint_discrepancy_B']
+
+               if hvsetpointdiscrepancy_16b == 1:
+
+                   sys.stdout.write("%s - rscheck():INFO: run %i crate 16 power supply B has a setpoint discrepancy alarm\n"
+                                     % (datetime.datetime.now().replace(microsecond = 0),run))
+                   
+                   cratesetpointdiscrepancy = 0
+
+               if cratecurrentnearzero == 0 or crateovercurrent == 0 or cratesetpointdiscrepancy == 0: cratealarmok = 0
+
+           else:
+
+               cratealarmok = 9
+
+               sys.stdout.write("%s - rscheck():INFO: run %i HV alarms not saved in the DQLL table - please check the detector state page on snopl.us\n"
+                                % (datetime.datetime.now().replace(microsecond = 0),run))
+
         else:
 
            runduration = 9
 	   cratestatus = 9
            cratedac = 9
+           cratealarmok = 9
+
+        if runtype == 1 and runduration == 1 and cratestatus == 1 and cratedac == 1: ncratehvok += 1
+
+        if runtype == 1 and runduration == 1 and cratestatus == 1 and cratedac == 1 and cratealarmok == 1: nnohvalarm += 1
 
 	# Write run info in run list
-        runlist.write(str(run) + ' | ')
-	runlist.write(str(runtype) + '        | ')
-	runlist.write(str(runduration) + '        | ')
-	runlist.write(str(cratestatus) + '         | ')
-	runlist.write(str(cratedac) + '         | ')
+        runlist.write(str(run) + ' || ')
+        runlist.write(str(runtype) + str(runduration) + str(cratestatus) + str(cratedac) + str(cratealarmok) + ' | ')
+	runlist.write(str(runtype) + '    | ')
+	runlist.write(str(runduration) + '    | ')
+	runlist.write(str(cratestatus) + '     | ')
+	runlist.write(str(cratedac) + '     | ')
+        runlist.write(str(cratealarmok) + '      ||')
 
         # Perform the HL checks
         dqhltools.dqhlPassFailList(run,runlist)
@@ -240,7 +355,12 @@ def main():
 	# Increment p
 	p += 1
 
-    runlist.close()	
+    runlist.close()
+
+    nphysruns = nruns - nnotphys
+
+    sys.stdout.write("%s - rscheck():INFO: number of runs %i - physics runs %i - with typeok %i - with durationok %i - with cratehvok %i with nohvalarm %i\n"
+                         % (datetime.datetime.now().replace(microsecond = 0),nruns,nphysruns,ntypeok,ndurationok,ncratehvok,nnohvalarm))	
 
     return 0  # Success!
 

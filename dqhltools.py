@@ -34,7 +34,7 @@ def processRun(runNumber, data, runlistFile):
     pmtProc = checks['dqpmtproc']
 
     # Print run results list:
-    runlistFile.write(" %i%i%i%i   | %i%i%i%i   |" % \
+    runlistFile.write(" %i%i%i%i    | %i%i%i%i   |" % \
            (modifTriggerProcChecksOK(runNumber, triggerProc), \
            modifTimeProcChecksOK(runNumber, timeProc), \
            modifRunProcChecksOK(runNumber, runProc), \
