@@ -35,17 +35,16 @@ def processRun(runNumber, data, runlistFile):
 
     # Print run results list:
     runlistFile.write(" %i%i%i%i    | %i%i%i%i   |" % \
-           (modifTriggerProcChecksOK(runNumber, triggerProc), \
+           (rsTriggerProcChecksOK(triggerProc), \
            modifTimeProcChecksOK(runNumber, timeProc), \
            modifRunProcChecksOK(runNumber, runProc), \
            pmtProcChecksOK(pmtProc), \
-           triggerProcChecksOK(triggerProc), timeProcChecksOK(timeProc), \
+           rsTriggerProcChecksOK(triggerProc), timeProcChecksOK(timeProc), \
            runProcChecksOK(runProc), pmtProcChecksOK(pmtProc)) + \
-                      " %i     %i     %i    %i      |" % \
+                      " %i     %i     %i     |" % \
            (triggerProc['n100l_trigger_rate'], \
            triggerProc['esumh_trigger_rate'], \
-           triggerProc['triggerProcMissingGTID'], 
-           triggerProc['triggerProcBitFlipGTID']) + \
+           1 if (len(triggerProc['check_params']['missing_gtids']) < 11) else 0) + \
                       " %i     %i      %i     %i     " % \
            (timeProc['event_rate'], timeProc['event_separation'], \
            timeProc['retriggers'], timeProc['run_header']) + \
@@ -76,8 +75,8 @@ def dqhlPassFailList(currentrun,runlistFile):
        # Print run results list with 9 flag:
        runlistFile.write(" %i%i%i%i   | %i%i%i%i   |" % \
                         (9, 9, 9, 9, 9, 9, 9, 9) + \
-                        " %i     %i     %i    %i      |" % \
-                        (9, 9, 9, 9) + \
+                        " %i     %i     %i      |" % \
+                        (9, 9, 9) + \
                         " %i     %i      %i     %i     " % \
                         (9, 9, 9, 9) + \
                         " %i       %i     |" % \

@@ -53,6 +53,15 @@ def modifDqhlChecksOK(runNumber, data):
 
 # --- From dqtriggerproc: ---
 
+# Last updated version for all runs
+def rsTriggerProcChecksOK(triggerProc):
+    passChecks = 0
+    if ((triggerProc['n100l_trigger_rate'] == 1) and
+        (triggerProc['esumh_trigger_rate'] == 1) and
+        (len(triggerProc['check_params']['missing_gtids']) < 11)):
+        passChecks = 1
+    return passChecks
+
 def modifBitFlipGTIDCountOK(triggerProc):
     bitFlipCountCheck = triggerProc['triggerProcBitFlipGTID']
     bitFlipCountCheck = 0
