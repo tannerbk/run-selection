@@ -14,7 +14,8 @@
 # kAmendedMaxEventRate = 1200
 kAmendedMaxEventRate = 7000  # Agreed at RS/DQ phone mtg 19/06/2017
 kAmendedMaxBitFlipCount = 0
-kAmendedMAXMissGTIDCount = 10
+kAmendedMaxMissGTIDCount = 10 # Agreed with the RC ...
+kAmendedMaxRetriggerRate = 15.0 # Agreed with the RC ...
 
 def isPhysicsRun(data):
     physicsRun = False
@@ -54,9 +55,9 @@ def modifDqhlChecksOK(runNumber, data):
 
 # --- From dqtriggerproc: ---
 
-def rsMissingGTIDChecksOK(triggerProc):
+def rsMissingGTIDCheckOK(triggerProc):
     passChecks = 0
-    if len(triggerProc['check_params']['missing_gtids']) <= kAmendedMAXMissGTIDCount:
+    if len(triggerProc['check_params']['missing_gtids']) <= kAmendedMaxMissGTIDCount:
         passChecks = 1
     return passChecks
 
@@ -112,6 +113,13 @@ def modifTriggerProcChecksOK(runNumber, triggerProc):
     return passChecks
 
 # --- From dqtimeproc: ---
+def rsRetriggerCheckOK(timeProc):
+    passCheck = 0
+    if ((timeProc['retriggers'] == 1) or
+        (('retriggers_value' in timeProc['check_params']) and
+        (timeProc['check_params']['retriggers_value'] <= kAmendedMaxRetriggerRate))):
+        passCheck = 1
+    return passCheck
 
 def modifEventRateCheckOK(timeProc):
     eventRateCheck = timeProc['event_rate']
@@ -130,7 +138,7 @@ def timeProcChecksOK(timeProc):
     passChecks = 0
     if ((timeProc['event_rate'] == 1) and 
         (timeProc['event_separation'] == 1) and
-        (timeProc['retriggers'] == 1) and
+        (rsRetriggerCheckOK(timeProc) == 1) and
         (timeProc['run_header'] == 1) and
         (timeProc['10Mhz_UT_comparrison'] == 1) and
         # (timeProc['clock_forward'] == 1) and
@@ -145,7 +153,7 @@ def modifTimeProcChecksOK(runNumber, timeProc):
     # if ((timeProc['event_rate'] == 1) and 
     if ((modifEventRateCheckOK(timeProc) == 1) and 
         (timeProc['event_separation'] == 1) and
-        (timeProc['retriggers'] == 1) and
+        (rsRetriggerCheckOK(timeProc) == 1) and
         (timeProc['run_header'] == 1) and
         (timeProc['10Mhz_UT_comparrison'] == 1) and
         # (timeProc['clock_forward'] == 1) and

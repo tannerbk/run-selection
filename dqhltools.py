@@ -44,10 +44,10 @@ def processRun(runNumber, data, runlistFile):
                       " %i     %i     %i     |" % \
            (triggerProc['n100l_trigger_rate'], \
            triggerProc['esumh_trigger_rate'], \
-           rsMissingGTIDChecksOK(triggerProc)) + \
+           rsMissingGTIDCheckOK(triggerProc)) + \
                       " %i     %i      %i     %i     " % \
            (timeProc['event_rate'], timeProc['event_separation'], \
-           timeProc['retriggers'], timeProc['run_header']) + \
+           rsRetriggerCheckOK(timeProc), timeProc['run_header']) + \
                       " %i       %i     |" % \
            (timeProc['10Mhz_UT_comparrison'], 
            timeProc['clock_forward']) + \
