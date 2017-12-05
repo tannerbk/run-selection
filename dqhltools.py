@@ -44,7 +44,7 @@ def processRun(runNumber, data, runlistFile):
                       " %i     %i     %i     |" % \
            (triggerProc['n100l_trigger_rate'], \
            triggerProc['esumh_trigger_rate'], \
-           1 if (len(triggerProc['check_params']['missing_gtids']) < 11) else 0) + \
+           rsMissingGTIDChecksOK(triggerProc)) + \
                       " %i     %i      %i     %i     " % \
            (timeProc['event_rate'], timeProc['event_separation'], \
            timeProc['retriggers'], timeProc['run_header']) + \

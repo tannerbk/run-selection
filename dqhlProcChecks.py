@@ -14,6 +14,7 @@
 # kAmendedMaxEventRate = 1200
 kAmendedMaxEventRate = 7000  # Agreed at RS/DQ phone mtg 19/06/2017
 kAmendedMaxBitFlipCount = 0
+kAmendedMAXMissGTIDCount = 10
 
 def isPhysicsRun(data):
     physicsRun = False
@@ -53,12 +54,18 @@ def modifDqhlChecksOK(runNumber, data):
 
 # --- From dqtriggerproc: ---
 
+def rsMissingGTIDChecksOK(triggerProc):
+    passChecks = 0
+    if len(triggerProc['check_params']['missing_gtids']) <= kAmendedMAXMissGTIDCount:
+        passChecks = 1
+    return passChecks
+
 # Last updated version for all runs
 def rsTriggerProcChecksOK(triggerProc):
     passChecks = 0
     if ((triggerProc['n100l_trigger_rate'] == 1) and
         (triggerProc['esumh_trigger_rate'] == 1) and
-        (len(triggerProc['check_params']['missing_gtids']) < 11)):
+        (rsMissingGTIDCheckOK(triggerProc) == 1)):
         passChecks = 1
     return passChecks
 
