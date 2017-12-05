@@ -35,20 +35,19 @@ def processRun(runNumber, data, runlistFile):
 
     # Print run results list:
     runlistFile.write(" %i%i%i%i    | %i%i%i%i   |" % \
-           (modifTriggerProcChecksOK(runNumber, triggerProc), \
+           (rsTriggerProcChecksOK(triggerProc), \
            modifTimeProcChecksOK(runNumber, timeProc), \
            modifRunProcChecksOK(runNumber, runProc), \
            pmtProcChecksOK(pmtProc), \
-           triggerProcChecksOK(triggerProc), timeProcChecksOK(timeProc), \
+           rsTriggerProcChecksOK(triggerProc), timeProcChecksOK(timeProc), \
            runProcChecksOK(runProc), pmtProcChecksOK(pmtProc)) + \
-                      " %i     %i     %i    %i      |" % \
+                      " %i     %i     %i     |" % \
            (triggerProc['n100l_trigger_rate'], \
            triggerProc['esumh_trigger_rate'], \
-           triggerProc['triggerProcMissingGTID'], 
-           triggerProc['triggerProcBitFlipGTID']) + \
+           rsMissingGTIDCheckOK(triggerProc)) + \
                       " %i     %i      %i     %i     " % \
            (timeProc['event_rate'], timeProc['event_separation'], \
-           timeProc['retriggers'], timeProc['run_header']) + \
+           rsRetriggerCheckOK(timeProc), timeProc['run_header']) + \
                       " %i       %i     |" % \
            (timeProc['10Mhz_UT_comparrison'], 
            timeProc['clock_forward']) + \
@@ -74,10 +73,10 @@ def dqhlPassFailList(currentrun,runlistFile):
     else:
 
        # Print run results list with 9 flag:
-       runlistFile.write(" %i%i%i%i   | %i%i%i%i   |" % \
+       runlistFile.write(" %i%i%i%i    | %i%i%i%i   |" % \
                         (9, 9, 9, 9, 9, 9, 9, 9) + \
-                        " %i     %i     %i    %i      |" % \
-                        (9, 9, 9, 9) + \
+                        " %i     %i     %i     |" % \
+                        (9, 9, 9) + \
                         " %i     %i      %i     %i     " % \
                         (9, 9, 9, 9) + \
                         " %i       %i     |" % \
