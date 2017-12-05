@@ -73,9 +73,9 @@ def dqhlPassFailList(currentrun,runlistFile):
     else:
 
        # Print run results list with 9 flag:
-       runlistFile.write(" %i%i%i%i   | %i%i%i%i   |" % \
+       runlistFile.write(" %i%i%i%i    | %i%i%i%i   |" % \
                         (9, 9, 9, 9, 9, 9, 9, 9) + \
-                        " %i     %i     %i      |" % \
+                        " %i     %i     %i     |" % \
                         (9, 9, 9) + \
                         " %i     %i      %i     %i     " % \
                         (9, 9, 9, 9) + \
