@@ -89,7 +89,7 @@ def main():
 	or (run > 101857 and run < 101887) or run == 102924 or run == 103166 \
       	or run == 103351 or run == 103376 or run == 103644 or run == 103822 \
         or run == 103850 or run == 103924 or run == 104392 or run == 104427 \
-        or run == 106359:
+        or run == 104502 or run == 106359:
 	    sys.stdout.write("%s - rscheck():INFO: run %s does not exist in ORCA/detector state database - skipping\n"
                             	% (datetime.datetime.now().replace(microsecond = 0),run)) 
             continue
