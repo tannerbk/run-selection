@@ -42,7 +42,7 @@ critical_tables = {
 'MISSED_COUNTS': "",
 'PEDCUT': "",
 'ATMOSPHERICS': "",
-'NOISE_RUN_LEVEL': "",
+'NOISE_RUN_INTEGRATED': "",
 'LIVETIME_CUT': ["retriggercut", "burstcut", "caenlosscut"],
 'CALIB_COMMON_RUN_LEVEL': ["MANIP"]
 }
@@ -85,7 +85,7 @@ def list_of_runs(curr, lower, upper):
 def is_table_in_ratdb(curr, lower, upper, table_name):
     ''' Returns a run list for runs for a given table '''
 
-    curr.execute("SELECT DISTINCT ON (run_begin) run_begin "
+    curr.execute("SELECT DISTINCT ON (run_begin) run_begin, run_end "
                  "FROM ratdb_header_v2 WHERE run_begin >= %s " 
                  "AND run_begin <= %s AND type = %s ORDER BY "
                  "run_begin ASC", (lower, upper, table_name))
@@ -93,10 +93,11 @@ def is_table_in_ratdb(curr, lower, upper, table_name):
     rows = curr.fetchall()    
 
     runs = []
-    for run in rows:
-        if run[0] in runs:
-            continue
-        runs.append(int(run[0]))
+    for brun, erun in rows:
+        for run in range(brun, erun+1):
+            if run in runs:
+                continue
+            runs.append(int(run))
 
     return runs
 
