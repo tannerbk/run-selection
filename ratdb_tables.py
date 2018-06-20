@@ -37,15 +37,31 @@ critical_tables = {
 'PMT_DQXX': "",
 'TPMUONFOLLOWER': "",
 'MISSEDMUONFOLLOWER': "",
-'LAST_MUON': "",
 'BLINDNESS_CHUNKS': "",
 'TRIGGER_CLOCK_JUMPS': "",
 'MISSED_COUNTS': "",
 'PEDCUT': "",
+'ATMOSPHERICS': "",
 'NOISE_RUN_LEVEL': "",
 'LIVETIME_CUT': ["retriggercut", "burstcut", "caenlosscut"],
 'CALIB_COMMON_RUN_LEVEL': ["MANIP"]
 }
+
+def list_of_gold_runs(curr, lower, upper):
+    ''' Get a list of golden runs '''
+
+    curr.execute("SELECT a.run, b.run_type FROM evaluated_runs AS a "
+                 "INNER JOIN run_state AS b ON a.list = 1 AND a.run = b.run " 
+                 "WHERE a.run >= %s AND a.run <= %s ORDER BY a.run ASC", (lower, upper))
+    rows = curr.fetchall()
+
+    gold_runs = []
+
+    for run, run_type in rows:
+        run = int(run)
+        gold_runs.append((run, run_type))
+
+    return gold_runs
 
 def list_of_runs(curr, lower, upper):
     ''' Get a list of physics and deployed source runs '''
@@ -124,6 +140,7 @@ if __name__=="__main__":
     parser.add_argument('--lower', '-l', type=str, help='Lower run range')
     parser.add_argument('--run_length', '-r', action='store_false', help='Look at runs > 30 mins')
     parser.add_argument('--filename', '-f', type=str, default='missing_tables.txt')
+    parser.add_argument('--gold', '-g', action='store_true', help='Only look at gold runs')
     args = parser.parse_args()
 
     if not args.upper or not args.lower:
@@ -137,7 +154,15 @@ if __name__=="__main__":
                               DETECTOR_DB_NAME))
     dcurr = dconn.cursor()
 
-    runs = list_of_runs(dcurr, args.lower, args.upper)
+    all_runs = list_of_runs(dcurr, args.lower, args.upper)
+    gold_runs = list_of_gold_runs(dcurr, args.lower, args.upper)
+
+    # Either check just gold runs or all physics/deployed source runs
+    if args.gold:
+        print "Only looking at gold runs."
+        runs = gold_runs
+    else:
+        runs = all_runs
 
     # Connect to rat database
     conn = psycopg2.connect('postgresql://%s:%s@%s:%i/%s' %
