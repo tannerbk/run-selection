@@ -16,6 +16,11 @@ from datetime import datetime
    the necessary RATDB tables all exist before identifying a run as gold.
 
    Example use: 'python ratdb_tables.py -l 111900 -u 111950'
+
+   Another common use is to check whether the appropriate tables exist for
+   gold runs. Use the -g flag to do so:
+
+   'python ratdb_tables.py -l 112311 113353 -g'
 '''
 
 DETECTOR_DB_USER = 'snoplus'
